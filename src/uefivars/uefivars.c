@@ -42,6 +42,19 @@
 /* Unused but needs to be defined for efi.c */
 efibootmgr_opt_t opts;
 
+/* allchar takes a unary function which operates on a char and a null
+   terminated list of chars. If unary function is true for all char in
+   char list, return true, else false. */
+int allchar(int (*uchar)(int), char *p)
+{
+    for (;*p; p++) {
+        if (uchar(*p) == 0)
+            return 0;
+    }
+    
+    return 1;
+}
+
 typedef struct _var_entry {
     struct dirent *name;
     uint16_t       num;
@@ -190,10 +203,8 @@ main(int argc,
             strcat(attributes, "RT");
         }
         if (!first) strcat(attributes, ")");
-
-        /* parse boot entries - only handles first 4 at present */
-        if (!strcmp(desc, "Boot0000") || !strcmp(desc, "Boot0001") ||
-            !strcmp(desc, "Boot0002") || !strcmp(desc, "Boot0003")) { 
+        
+        if (!strncmp(desc, "Boot", 4) && allchar(isxdigit, desc+4)) { 
 
             char description[80];
             EFI_LOAD_OPTION *load_option;

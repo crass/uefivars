@@ -33,7 +33,7 @@
 #include "efichar.h"
 
 /* Avoid unaligned access warnings */
-#define get(buf, obj) *(typeof(obj) *)memcpy(buf, &obj, sizeof(obj))
+#define get(buf, obj) (*(typeof(obj) *)memcpy(buf, &obj, sizeof(obj)))
 
 
 void
@@ -181,45 +181,59 @@ unparse_messaging_path(char *buffer, EFI_DEVICE_PATH *path)
 	SCSI_DEVICE_PATH *scsi = (SCSI_DEVICE_PATH *)path;
 	FIBRE_CHANNEL_DEVICE_PATH *fc = (FIBRE_CHANNEL_DEVICE_PATH *)path;
 	I1394_DEVICE_PATH *i1394 = (I1394_DEVICE_PATH *)path;
+	SATA_DEVICE_PATH *sata = (SATA_DEVICE_PATH *)path;
 	USB_DEVICE_PATH *usb = (USB_DEVICE_PATH *)path;
 	MAC_ADDR_DEVICE_PATH *mac = (MAC_ADDR_DEVICE_PATH *)path;
 	USB_CLASS_DEVICE_PATH *usbclass = (USB_CLASS_DEVICE_PATH *)path;
-	I2O_DEVICE_PATH *i2o = (I2O_DEVICE_PATH *)path; 
+	I2O_DEVICE_PATH *i2o = (I2O_DEVICE_PATH *)path;
+        INFINIBAND_DEVICE_PATH *infin = (INFINIBAND_DEVICE_PATH*)path;
 	IPv4_DEVICE_PATH *ipv4 = (IPv4_DEVICE_PATH *)path;
 /* 	IPv6_DEVICE_PATH *ipv6 = (IPv6_DEVICE_PATH *)path; */
+        UART_DEVICE_PATH *uart = (UART_DEVICE_PATH*)path;
 	char *p = buffer;
+	char text_uuid[40];
 	char a[16], b[16], c[16], d[16], e[16];
 
 	switch (path->subtype) {
-	case 1:
+	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_ATAPI:
 		return sprintf(buffer, "ATAPI(%x,%x,%x)",
 			       get(a, atapi->primary_secondary),
 			       get(b, atapi->slave_master),
 			       get(c, atapi->lun));
 		break;
-	case 2:
+	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_SCSI:
 		return sprintf(buffer, "SCSI(%x,%x)", get(a, scsi->id), get(b, scsi->lun));
 		break;
 
-	case 3:
+	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_FIBRE_CHANNEL:
 		return sprintf(buffer, "FC(%" PRIx64 ",%" PRIx64 ")", get(a, fc->wwn), get(b, fc->lun));
 		break;
-	case 4:
+	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_1394:
 		return sprintf(buffer, "1394(%" PRIx64 ")", get(a, i1394->guid));
 		break;
-	case 5:
+	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_USB:
 		return sprintf(buffer, "USB(%x,%x)", get(a, usb->port), get(b, usb->endpoint));
 		break;
-	case 6:
+	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_I2O:
 		return sprintf(buffer, "I2O(%x)", get(a, i2o->tid));
 		break;
-	case 11:
+	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_INFINIBAND:
+                efi_guid_unparse((efi_guid_t *)infin->port_guid, text_uuid);
+                
+		p += sprintf(p, "INFINIBAND(%s", text_uuid);
+                /* TODO: Print resource flags */
+		p += sprintf(p, ",%llx", (unsigned long long int) get(a, infin->ioc_guid));
+		p += sprintf(p, ",%llx", (unsigned long long int) get(a, infin->target_port_id));
+		p += sprintf(p, ",%llx)", (unsigned long long int) get(a, infin->dev_id));
+		return (int) (p - buffer);
+                break;
+	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_MAC:
 		p += sprintf(p, "MAC(");
 		p += unparse_raw(p, mac->macaddr, 6);
 		p += sprintf(p, ",%hhx)", get(a, mac->iftype));
 		return (int) (p - buffer);
 		break;
-	case 12:
+	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_IPV4:
 		p += sprintf(p, "IPv4(");
 		p += unparse_ipv4_port(p, ipv4->local_ip, ipv4->local_port);
 		p += sprintf(p, "<->");
@@ -228,12 +242,33 @@ unparse_messaging_path(char *buffer, EFI_DEVICE_PATH *path)
 		return (int) (p - buffer);
 		break;
 
-	case 15:
+	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_UART:
+		return sprintf(buffer, "UART(%llx,%hhx,%hhx,%hhx)",
+			       (unsigned long long int) get(a, uart->baud_rate),
+                               uart->data_bits, uart->parity, uart->stop_bits);
+		break;
+	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_USB_CLASS:
 		return sprintf(buffer, "USBClass(%hx,%hx,%hhx,%hhx,%hhx)",
 			       get(a, usbclass->vendor), get(b, usbclass->product),
 			       get(c, usbclass->class), get(d, usbclass->subclass),
 			       get(e, usbclass->protocol));
 		break;
+	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_SATA:
+		return sprintf(buffer, "SATA(%hhx,%hhx,%hhx)",
+                               get(a, sata->hba_port), get(b, sata->pmpn),
+                               get(c, sata->lun));
+                break;
+	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_FIBRE_CHANNEL_EX:
+	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_USB_WWID:
+	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_VLAN:
+	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_VENDOR:
+	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_SAS_EX:
+	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_ISCSI:
+                p += sprintf(p, "UnImplmented(");
+                p += unparse_raw(p, (uint8_t *)path, path->length);
+                p += sprintf(p, ")");
+		return (int) (p - buffer);
+                break;
 	default:
 		return unparse_raw(buffer, (uint8_t *)path, path->length);
 		break;
