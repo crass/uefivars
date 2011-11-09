@@ -1,5 +1,4 @@
 Running 'make' builds the file src/efibootmgr/efibootmgr.
 efibootmgr should be placed into /usr/sbin/.
 
-
-
+The pciutils development libraries must be installed.

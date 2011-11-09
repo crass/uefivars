@@ -1,1 +1,16 @@
+=== uefivars ===
+1.  Handle general case of BOOTXXXX variable instead of just
+    BOOT0000 - BOOT0004
+
+2.  Localize utility
+
+3.  Add parsing for remaining variables defined in UEFI specification
+
+4.  Create RPM
+
+5.  Create man page
+
+
+=== efibootmgr ===
+
 * MS-DOS style extended partitions

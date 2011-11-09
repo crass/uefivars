@@ -4,6 +4,9 @@ INSTALLDEPS += bindir_LIST
   MODULES := src/efibootmgr src/lib src/include
   include $(patsubst %,%/module.mk,$(MODULES))
 
+  MODULES := src/uefivars src/lib src/include
+  include $(patsubst %,%/module.mk,$(MODULES))
+
 
 # Common stuff to copy into the common directories
 #  Note that the stuff below bindir_LIST is all on one line...

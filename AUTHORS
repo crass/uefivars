@@ -2,6 +2,9 @@ Matt Domsch <Matt_Domsch@dell.com>
 - All .c and .h files
 
 
+Finnbarr P. Murphy <fpmATfpmurphy.com>
+- Initial version of uefivars
+
 Andreas Schwab <schwab@suse.de>
 - Patches to several .c and .h files
 

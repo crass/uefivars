@@ -170,6 +170,12 @@ create_or_edit_variable(efi_variable_t *var)
 }
 
 static int
+select_all_var_names(const struct dirent *d)
+{
+	return 1;
+}
+
+static int
 select_boot_var_names(const struct dirent *d)
 {
 	if (!strncmp(d->d_name, "Boot", 4) &&
@@ -178,6 +184,14 @@ select_boot_var_names(const struct dirent *d)
 	    d->d_name[8] == '-')
 		return 1;
 	return 0;
+}
+
+int
+read_all_var_names(struct dirent ***namelist)
+{
+	if (!fs_kernel_calls || !namelist) return -1;
+	return scandir(fs_kernel_calls->path,
+		       namelist, select_all_var_names, alphasort);
 }
 
 int

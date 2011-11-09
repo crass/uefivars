@@ -1,13 +1,66 @@
-This is efibootmgr, a Linux user-space application to modify the Intel
+The uefivars program is a Linux user-space utility to display the 
+United Extensible Firmware Interface (UEFI) globally defined variables 
+known to the kernel. You must be root to run this utility. 
+
+efibootmgr is a Linux user-space application to modify the Intel
 Extensible Firmware Interface (EFI) Boot Manager.  This application
 can create and destroy boot entries, change the boot order, change
 the next running boot option, and more.
 
-Details on the EFI Boot Manager are available from the EFI
+The UEFI Specification is available from http://www.uefi.org.  See Section 
+3.2 Table 8 of the UEFI specification for a full list of the globally 
+defined variables.  Details on the EFI Boot Manager are available from the EFI
 Specification, v1.02 or above, available from http://developer.intel.com.
-
+ 
+Note: uefivars requires that the kernel was booted using (U)EFI
 Note: efibootmgr requires that the kernel module efivars be loaded
 prior to use.  'modprobe efivars' should do the trick.
+
+Typical usage:
+=============
+ 
+[root @ localhost]# uefivars
+Boot0000 (NV,BS,RT):* EFI USB Device   ACPI(a0841d0,0)PCI(1d,7)USB(2,0)
+Boot0001 (NV,BS,RT):* EFI DVD/CDROM    ACPI(a0841d0,0)PCI(1f,2)ATAPI(0,0,0)
+BootCurrent (BS,RT): 003D
+BootOptionSupport (BS,RT): 0303
+BootOrder (NV,BS,RT): 0000,0001
+ConIn (NV,BS,RT):
+/ACPI(a0841d0,0)/PCI(0,1f)/ACPI(30341d0,0)
+/ACPI(a0841d0,0)/PCI(0,1f)/ACPI(50141d0,1)/UART(115200,8,1,1)/Vendor(11d2f9be-0c9a-9000-273f-c14d7f010400)
+/USBClass(ffff,ffff,3,1,1)
+ConInDev (BS,RT):
+/USBClass(ffff,ffff,3,1,1)
+/ACPI(a0841d0,0)/PCI(0,1f)/ACPI(50141d0,1)/UART(115200,8,1,1)/Vendor(11d2f9be-0c9a-9000-273f-c14d7f010400)
+/ACPI(a0841d0,0)/PCI(0,1f)/ACPI(50141d0,1)/UART(115200,8,1,1)/Vendor(11d3b419-2d9a-9000-273f-c14d7f010400)
+/ACPI(a0841d0,0)/PCI(0,1f)/ACPI(50141d0,1)/UART(115200,8,1,1)/Vendor(4c7657e0-878e-9e2f-2808-83437f010400)
+/ACPI(a0841d0,0)/PCI(0,1f)/ACPI(50141d0,1)/UART(115200,8,1,1)/Vendor(4acf8bec-73a0-1dd0-e77e-2d887f010400)
+/ACPI(a0841d0,0)/PCI(0,1f)/ACPI(30341d0,0)
+ConOut (NV,BS,RT):
+/ACPI(a0841d0,0)/PCI(0,1)/PCI(0,0)
+/ACPI(a0841d0,0)/PCI(0,1f)/ACPI(50141d0,1)/UART(115200,8,1,1)/Vendor(11d2f9be-0c9a-9000-273f-c14d7fff0400)
+ConOutDev (BS,RT):
+/ACPI(a0841d0,0)/PCI(0,1)/PCI(0,0)
+/ACPI(a0841d0,0)/PCI(0,1f)/ACPI(50141d0,1)/UART(115200,8,1,1)/Vendor(11d2f9be-0c9a-9000-273f-c14d7f010400)
+/ACPI(a0841d0,0)/PCI(0,1f)/ACPI(50141d0,1)/UART(115200,8,1,1)/Vendor(11d3b419-2d9a-9000-273f-c14d7f010400)
+/ACPI(a0841d0,0)/PCI(0,1f)/ACPI(50141d0,1)/UART(115200,8,1,1)/Vendor(4c7657e0-878e-9e2f-2808-83437f010400)
+/ACPI(a0841d0,0)/PCI(0,1f)/ACPI(50141d0,1)/UART(115200,8,1,1)/Vendor(4acf8bec-73a0-1dd0-e77e-2d887fff0400)
+ErrOut (NV,BS,RT):
+/ACPI(a0841d0,0)/PCI(0,1f)/ACPI(50141d0,1)/UART(115200,8,1,1)/Vendor(11d2f9be-0c9a-9000-273f-c14d7fff0400)
+ErrOutDev (BS,RT):
+/ACPI(a0841d0,0)/PCI(0,1)/PCI(0,0)
+/ACPI(a0841d0,0)/PCI(0,1f)/ACPI(50141d0,1)/UART(115200,8,1,1)/Vendor(11d2f9be-0c9a-9000-273f-c14d7f010400)
+/ACPI(a0841d0,0)/PCI(0,1f)/ACPI(50141d0,1)/UART(115200,8,1,1)/Vendor(11d3b419-2d9a-9000-273f-c14d7f010400)
+/ACPI(a0841d0,0)/PCI(0,1f)/ACPI(50141d0,1)/UART(115200,8,1,1)/Vendor(4c7657e0-878e-9e2f-2808-83437f010400)
+/ACPI(a0841d0,0)/PCI(0,1f)/ACPI(50141d0,1)/UART(115200,8,1,1)/Vendor(4acf8bec-73a0-1dd0-e77e-2d887fff0400)
+Lang (NV,BS,RT): eng
+LangCodes (BS,RT): eng,fra
+PlatformLang (NV,BS,RT): en-US
+PlatformLangCodes (BS,RT): en-US,fr-FR
+Timeout (NV,BS,RT): 3 secs
+
+
+== Using efibootmgr ==
 
 usage: efibootmgr [options]
 	-a | --active         sets bootnum active
