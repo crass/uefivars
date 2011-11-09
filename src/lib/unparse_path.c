@@ -262,7 +262,7 @@ unparse_messaging_path(char *buffer, EFI_DEVICE_PATH *path)
 	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_VENDOR:
                 efi_guid_unparse((efi_guid_t *)&vendor->vendor_guid, text_uuid);
                 p += sprintf(p, "VENDOR(%s,", text_uuid);
-                p += unparse_raw(p, (uint8_t *)vendor->data, (void*)&vendor->data - (void*)vendor);
+                p += unparse_raw(p, (uint8_t *)vendor->data, vendor->length - (sizeof(*vendor) - sizeof(vendor->data)));
                 p += sprintf(p, ")");
 		return (int) (p - buffer);
                 break;
