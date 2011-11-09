@@ -190,6 +190,7 @@ unparse_messaging_path(char *buffer, EFI_DEVICE_PATH *path)
 	IPv4_DEVICE_PATH *ipv4 = (IPv4_DEVICE_PATH *)path;
 /* 	IPv6_DEVICE_PATH *ipv6 = (IPv6_DEVICE_PATH *)path; */
         UART_DEVICE_PATH *uart = (UART_DEVICE_PATH*)path;
+        VENDOR_DEVICE_PATH *vendor = (VENDOR_DEVICE_PATH*)path;
 	char *p = buffer;
 	char text_uuid[40];
 	char a[16], b[16], c[16], d[16], e[16];
@@ -258,10 +259,16 @@ unparse_messaging_path(char *buffer, EFI_DEVICE_PATH *path)
                                get(a, sata->hba_port), get(b, sata->pmpn),
                                get(c, sata->lun));
                 break;
+	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_VENDOR:
+                efi_guid_unparse((efi_guid_t *)&vendor->vendor_guid, text_uuid);
+                p += sprintf(p, "VENDOR(%s,", text_uuid);
+                p += unparse_raw(p, (uint8_t *)vendor->data, (void*)&vendor->data - (void*)vendor);
+                p += sprintf(p, ")");
+		return (int) (p - buffer);
+                break;
 	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_FIBRE_CHANNEL_EX:
 	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_USB_WWID:
 	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_VLAN:
-	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_VENDOR:
 	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_SAS_EX:
 	case EFI_DEVICE_PATH_TYPE_MESSAGING_SUBTYPE_ISCSI:
                 p += sprintf(p, "UnImplmented(");
@@ -351,11 +358,9 @@ unparse_bios_path(char *buffer, EFI_DEVICE_PATH *path)
 	char *p = buffer;
 	unsigned char *q = (uint8_t *)path + 8;
 	char a[16], b[16];
-	p += sprintf(p, "BIOS(%x,%x,",
-		     get(a, bios->device_type), get(b, bios->status_flag));
-	p += unparse_raw(p, q, path->length - 8);
-	p += sprintf(p, ")");
-	return p - buffer;
+	return sprintf(p, "BIOS(%x,%x,%s)",
+		       get(a, bios->device_type), get(b, bios->status_flag),
+                       &bios->description);
 }
 
 
