@@ -1,9 +1,12 @@
 Matt Domsch <Matt_Domsch@dell.com>
 - All .c and .h files
 
-
 Finnbarr P. Murphy <fpmATfpmurphy.com>
 - Initial version of uefivars
+
+Glenn Washburn <development@efficientek.com>
+- Remerge removed portions of efibootmgr
+- Add support for printing more devices
 
 Andreas Schwab <schwab@suse.de>
 - Patches to several .c and .h files
